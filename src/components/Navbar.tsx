@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
                     </h1>
                     <span className="text-gray-600 text-xl">|</span>
                     <span className="text-gray-600 text-xl">
-                        IIITprep UGEE Mock Test | Need subscription for result
+                        IIITprep UGEE Mock Test | Need subscription for Result
                     </span>
                 </div>
                 {/* Second Line - Answer Key & Solutions */}

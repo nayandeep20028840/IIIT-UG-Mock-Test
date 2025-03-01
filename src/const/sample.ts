@@ -1,7 +1,7 @@
 export const questions = [
     {
         id: 1,
-        q: "A particle moves in a circular path with uniform speed. Which of the following remains constant?",
+        q: "A particle moves in a circular path with uniform speed. Which of the following remains constant? A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?A particle moves in a circular path with uniform speed. Which of the following remains constant?",
         options: {
             A: "Velocity",
             B: "Acceleration",
@@ -9,36 +9,9 @@ export const questions = [
             D: "Displacement",
         },
     },
-    {
-        id: 2,
-        q: "A ball is dropped from a height of 20 m. What is its velocity just before hitting the ground? (g = 10 m/s²)",
-        options: {
-            A: "10 m/s",
-            B: "20 m/s",
-            C: "30 m/s",
-            D: "40 m/s",
-        },
-    },
-    {
-        id: 3,
-        q: "Which of the following statements is correct about the motion of a projectile fired at an angle?",
-        options: {
-            A: "The horizontal velocity remains constant.",
-            B: "The acceleration is zero at the highest point.",
-            C: "The vertical velocity remains constant.",
-            D: "The trajectory is a straight line.",
-        },
-    },
-    {
-        id: 4,
-        q: "A capacitor of capacitance 4 µF is connected to a 12V battery. What is the charge stored in it?",
-        options: {
-            A: "24 µC",
-            B: "48 µC",
-            C: "12 µC",
-            D: "36 µC",
-        },
-    },
+    {id: 2, q: "The escape velocity from Earth is approximately:",options: {A: "7 km/s", B: "9.8 km/s", C: "11.2 km/s", D: "15 km/s", },},
+    {id: 3, q: "The escape velocity from Earth is approximately:",options: {A: "7 km/s", B: "9.8 km/s", C: "11.2 km/s", D: "15 km/s", },},
+    {id: 4, q: "The escape velocity from Earth is approximately:",options: {A: "7 km/s", B: "9.8 km/s", C: "11.2 km/s", D: "15 km/s", },},
     {id: 5, q: "The escape velocity from Earth is approximately:",options: {A: "7 km/s", B: "9.8 km/s", C: "11.2 km/s", D: "15 km/s", },},
     {id: 6, q: "The escape velocity from Earth is approximately:",options: {A: "7 km/s", B: "9.8 km/s", C: "11.2 km/s", D: "15 km/s", },},
     {id: 7, q: "The escape velocity from Earth is approximately:",options: {A: "7 km/s", B: "9.8 km/s", C: "11.2 km/s", D: "15 km/s", },},
