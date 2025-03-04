@@ -8,7 +8,7 @@ const QuestionButtons: React.FC = () => {
   return (
     <div>
       <div className="flex flex-wrap gap-4 mb-4">
-        {Array.from({ length: 50 }, (_, i) => i + 1).map((num) => (
+        {Array.from({ length: 120 }, (_, i) => i + 1).map((num) => (
           <button
             key={num}
             onClick={() => setSelected(num)}

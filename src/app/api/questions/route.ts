@@ -1,64 +1,34 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
-import pdfParse from "pdf-parse";
-import { convertLatexToPDF } from "@/utils/latexParser";
+import { NextResponse } from "next/server";
+import { cleanLatex } from "@/utils/latexParser"; // Import the function
 
 export async function GET() {
     try {
-        const latexPath = path.join(process.cwd(), "const", "latexFormat.tex");
-        // console.log("LaTeX Path:", latexPath); // correct path
-        const outputDir = path.join(process.cwd(), "const");
-        // console.log("Output Directory:", outputDir); // correct path
-        console.log("Converting LaTeX to PDF...");
-        const pdfPath = await convertLatexToPDF(latexPath, outputDir);
+        // Update the file path to match the correct location
+        const filePath = path.join(process.cwd(), "src", "const", "latexFormat.tex");
+        // console.log("Reading file:", filePath);
+        
+        const fileContent = await fs.readFile(filePath, "utf-8");
 
-        // console.log("Reading PDF...");
-        // const dataBuffer = fs.readFileSync(pdfPath);
-        // const pdfData = await pdfParse(dataBuffer);
-        // console.log("Extracted Text:", pdfData.text);
+        // Extract question blocks using regex
+        const questionBlocks = fileContent.match(/\\item\s+(.*?)(?=(\\item|\n\\end{enumerate}))/gs) || [];
+        console.log("Found", questionBlocks.length, "questions");
 
-        // console.log("Extracting Questions...");
-        // const questions = extractQuestions(pdfData.text);
-        // console.log("Extracted Questions:", questions);
+        // Process questions and options
+        const questions = questionBlocks.map(block => {
+            const [questionText, ...optionsRaw] = block.split(/\\\(/);
+            const options = optionsRaw.map(opt => cleanLatex(opt.replace(/\(\d+\)/, "").trim()));
 
-        return NextResponse.json(latexPath);
+            return {
+                question: cleanLatex(questionText.replace("\\item", "").trim()),
+                options: options.filter(opt => opt.length > 0)
+            };
+        });
+
+        return NextResponse.json({ questions });
     } catch (error) {
-        return NextResponse.json(
-            { error: "Failed to process PDF", details: error.message },
-            { status: 500 }
-        );
+        console.error("Error reading file:", error);
+        return NextResponse.json({ error: "Failed to load the file" }, { status: 500 });
     }
 }
-
-// Function to extract questions and options from text
-function extractQuestions(text: string) {
-    const questionRegex = /Q\d+\.\s*(.*?)(?=\n[A-D]\.)/gs;
-    const optionRegex = /\n([A-D])\.\s*(.*?)(?=\n[A-D]\.|\nQ\d+\.|\n$)/gs;
-
-    const questionMatches = [...text.matchAll(questionRegex)];
-    const optionMatches = [...text.matchAll(optionRegex)];
-
-    return questionMatches.map((qMatch, index) => {
-        const questionText = qMatch[1].trim();
-        const options: Record<string, string> = {};
-
-        let i = index * 4;
-        if (i + 3 < optionMatches.length) {
-            options["A"] = optionMatches[i]?.[2]?.trim() || "";
-            options["B"] = optionMatches[i + 1]?.[2]?.trim() || "";
-            options["C"] = optionMatches[i + 2]?.[2]?.trim() || "";
-            options["D"] = optionMatches[i + 3]?.[2]?.trim() || "";
-        }
-
-        return { id: index + 1, q: questionText, options };
-    });
-}
-
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//     return NextResponse.json(
-//         { message: "Hello, World!" }
-//     );
-// }

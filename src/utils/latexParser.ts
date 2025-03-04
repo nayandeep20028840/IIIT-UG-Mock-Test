@@ -1,43 +1,22 @@
-import fs from "fs";
-import path from "path";
-import { exec } from "child_process";
+// utils/latexParser.ts
 
-/**
- * Converts a LaTeX file to a PDF.
- * @param latexFilePath Path to the LaTeX (.tex) file
- * @param outputDir Directory where the PDF should be saved
- * @returns The path to the generated PDF file
- */
-export async function convertLatexToPDF(latexFilePath: string, outputDir: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        // console.log("Compiling LaTeX...");
-        console.log(latexFilePath)
-        console.log(outputDir)
-        if (!fs.existsSync(latexFilePath)) {
-            // console.log("LaTeX file not found.");
-            return reject(new Error("LaTeX file not found."));
-        }
-        // console.log("Compiling LaTeX...");
-        // Ensure the output directory exists
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
-
-        const command = `pdflatex -output-directory=${outputDir} ${latexFilePath}`;
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.error("LaTeX compilation error:", stderr);
-                return reject(new Error("Failed to compile LaTeX."));
-            }
-
-            console.log("LaTeX compiled successfully:", stdout);
-            const pdfFilePath = path.join(outputDir, path.basename(latexFilePath, ".tex") + ".pdf");
-
-            if (!fs.existsSync(pdfFilePath)) {
-                return reject(new Error("PDF file not generated."));
-            }
-
-            resolve(pdfFilePath);
-        });
-    });
-}
+export function cleanLatex(text: string): string {
+    return text
+      .replace(/\\mathrm{([^}]*)}/g, "$1") // Remove \mathrm{}
+      .replace(/\$(.*?)\$/g, "$1") // Remove inline math $
+      .replace(/\\frac{([^}]*)}{([^}]*)}/g, "($1/$2)") // Convert \frac{a}{b} → (a/b)
+      .replace(/\^{([^}]*)}/g, "^$1") // Convert ^{2} → ^2
+      .replace(/\\sqrt{([^}]*)}/g, "√$1") // Convert \sqrt{2} → √2
+      .replace(/\\left\(|\\right\)/g, "") // Remove \left( and \right)
+      .replace(/\\textbf{([^}]*)}/g, "$1") // Convert \textbf{text} → text
+      .replace(/\\ce{([^}]*)}/g, "$1") // Convert chemical formula \ce{H2O} → H2O
+      .replace(/\\lim\s*_{([^}]*)}/g, "lim ($1)") // Convert \lim_{x→0} → lim (x→0)
+      .replace(/\\pi/g, "π") // Convert \pi → π
+      .replace(/\\times/g, "×") // Convert \times → ×
+      .replace(/\\rightarrow/g, "→") // Convert \rightarrow → →
+      .replace(/\\infty/g, "∞") // Convert \infty → ∞
+      .replace(/\\w+[{]([^}]*)[}]/g, "$1") // Remove unknown LaTeX commands
+      .replace(/\\\\/g, "\n") // Convert LaTeX newlines
+      .trim();
+  }
+  
