@@ -1,3 +1,5 @@
+// components/Navbar.tsx
+
 import React from "react";
 import Image from "next/image";
 import photo from "./iiitprep-logo.png";

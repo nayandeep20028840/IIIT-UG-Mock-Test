@@ -1,3 +1,6 @@
+
+// components/BottomNavigation.tsx
+
 import React from "react";
 import { FaEye } from "react-icons/fa";
 import { MdOutlineArrowForwardIos } from "react-icons/md";

@@ -1,3 +1,5 @@
+// components/Questions.tsx
+
 import React, { useEffect, useState } from "react";
 import { useQuestionStore } from "../store/questionStore";
 import BottomNavigation from "../components/BottomNavigation";
@@ -20,6 +22,7 @@ const Questions: React.FC = () => {
         const response = await fetch("/api/questions");
         const data = await response.json();
         console.log(data.questions.length);
+        console.log(data.questions[0]);
         setQuestions(data.questions);
       } catch (error) {
         setError(error instanceof Error ? error.message : "An unknown error occurred");
