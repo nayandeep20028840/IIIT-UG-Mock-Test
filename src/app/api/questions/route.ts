@@ -1,48 +1,63 @@
-import { NextResponse } from "next/server";
-import { promisify } from "util";
-import { exec } from "child_process";
 import fs from "fs/promises";
 import path from "path";
-
-const execPromise = promisify(exec);
+import { NextResponse } from "next/server";
+import { cleanLatex } from "@/utils/latexParser";
 
 export async function GET() {
     try {
-        const pdflatexPath = `"C:\\Users\\varsh\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"`;
-        const texFilePath = path.join(process.cwd(), "src", "const", "latexFormat.tex");
-        const outputDir = path.join(process.cwd(), "src", "const");
-        const outputPdfPath = path.join(outputDir, "latexFormat.pdf");
+        const filePath = path.join(process.cwd(), "src", "const", "latexFormat.tex");
+        const fileContent = await fs.readFile(filePath, "utf-8");
 
-        console.log("TeX File Path:", texFilePath);
-        console.log("Output Directory:", outputDir);
-        console.log("Expected PDF Path:", outputPdfPath);
+        // Regex to match either "\item " or a line-start number (e.g., "41. ")
+        const markerRegex = /\\item\s+|(?:^|\n)(\d+\.\s+)/g;
+        let matches;
+        const markers = [];
 
-        // Run pdflatex command
-        const command = `${pdflatexPath} -interaction=nonstopmode -halt-on-error -output-directory=${outputDir} ${texFilePath}`;
-        console.log("Running:", command);
-
-        const { stdout, stderr } = await execPromise(command);
-        console.log("pdflatex stdout:", stdout);
-        console.error("pdflatex stderr:", stderr);
-
-        // Verify PDF was generated
-        const pdfExists = await fs.stat(outputPdfPath).catch(() => null);
-        if (!pdfExists || pdfExists.size === 0) {
-            throw new Error("PDF file was not generated or is empty.");
+        while ((matches = markerRegex.exec(fileContent)) !== null) {
+            markers.push({ index: matches.index, marker: matches[0] });
         }
-        console.log("Generated PDF size:", pdfExists.size);
 
-        // Read the generated PDF
-        const pdfBuffer = await fs.readFile(outputPdfPath);
+        // Extract question blocks using marker positions
+        const questionBlocks = [];
+        for (let i = 0; i < markers.length; i++) {
+            const start = markers[i].index;
+            const end = i < markers.length - 1 ? markers[i + 1].index : fileContent.length;
+            const block = fileContent.slice(start, end).trim();
+            questionBlocks.push(block);
+        }
+        console.log("Found", questionBlocks.length, "question blocks");
 
-        return new NextResponse(pdfBuffer, {
-            headers: {
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "attachment; filename=latexFormat.pdf"
-            }
+        // Process each question block:
+        // - Remove the starting marker (either \item or a number+dot)
+        // - Split by newlines (or \\) to separate question text and options
+        const questions = questionBlocks.map(block => {
+            // Remove the leading marker
+            const cleanedBlock = block.replace(/^(\\item\s+|\d+\.\s+)/, "").trim();
+
+            // Split the block into lines; also split on '\\' (LaTeX newline) if needed
+            const lines = cleanedBlock
+                .split(/\\{0,2}[\r\n]+/)
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+
+            // The first line is assumed to be the question text
+            const questionText = cleanLatex(lines[0]);
+
+            // Remaining lines (if any) are options.
+            // Remove option numbers like (1) if present.
+            const options = lines.slice(1).map(opt =>
+                cleanLatex(opt.replace(/^\(\d+\)\s*/, ""))
+            ).filter(opt => opt.length > 0);
+
+            return {
+                question: questionText,
+                options: options
+            };
         });
+
+        return NextResponse.json({ questions });
     } catch (error) {
-        console.error("Error generating PDF:", error);
-        return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
+        console.error("Error reading file:", error);
+        return NextResponse.json({ error: "Failed to load the file" }, { status: 500 });
     }
 }
