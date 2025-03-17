@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useQuestionStore } from "../store/questionStore";
 import BottomNavigation from "../components/BottomNavigation";
+import Latex from "react-latex-next";
+import "katex/dist/katex.min.css"; 
 
 interface Question {
   id: number;
@@ -14,12 +16,14 @@ const Questions: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Track selected answers per question
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string | null }>({});
+
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const response = await fetch("/api/questions");
         const data = await response.json();
-        // Assign an id to each question based on its index.
         const formattedQuestions: Question[] = data.questions.map(
           (q: any, index: number) => ({
             id: index + 1,
@@ -29,9 +33,7 @@ const Questions: React.FC = () => {
         );
         setQuestions(formattedQuestions);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
       } finally {
         setLoading(false);
       }
@@ -40,34 +42,40 @@ const Questions: React.FC = () => {
     fetchQuestions();
   }, []);
 
-  if (loading)
+  if (loading) {
     return <p className="text-center text-gray-600">Loading questions...</p>;
-  if (error)
+  }
+  if (error) {
     return <p className="text-center text-red-500">{error}</p>;
+  }
 
   const totalQuestions = questions.length;
   const currentQuestion = questions.find((q) => q.id === selected) || null;
 
-  const handleNextQuestion = () =>
-    setSelected((selected % totalQuestions) + 1);
-  const handleReviewNextQuestion = () =>
-    setSelected((selected % totalQuestions) + 1);
-  const handleSubmitNextQuestion = () =>
-    setSelected((selected % totalQuestions) + 1);
-  const handleSubmitMarkQuestion = () =>
-    setSelected((selected % totalQuestions) + 1);
+  const handleNextQuestion = () => setSelected((selected % totalQuestions) + 1);
+  const handleReviewNextQuestion = () => setSelected((selected % totalQuestions) + 1);
+  const handleSubmitNextQuestion = () => setSelected((selected % totalQuestions) + 1);
+  const handleSubmitMarkQuestion = () => setSelected((selected % totalQuestions) + 1);
+
+  // Handle option selection
+  const handleOptionSelect = (questionId: number, option: string) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [questionId]: option, // Store selected option for the current question
+    }));
+  };
 
   return (
     <div className="flex flex-col h-screen overflow-y-auto p-4">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        IIITprep UGEE Mock 9 - SUPR Question {currentQuestion?.id || "-"} of{" "}
-        {totalQuestions} <span className="font-bold">(SUPR PHYSICS)</span>
+        IIITprep UGEE Mock 9 - SUPR Question {currentQuestion?.id || "-"} of {totalQuestions} 
+        <span className="font-bold"> (SUPR PHYSICS)</span>
       </h2>
 
       <p className="text-gray-700 font-semibold">Ques:</p>
-      <p className="ml-10 text-gray-700 leading-relaxed font-medium">
+      <Latex className="ml-10 text-gray-700 leading-relaxed font-medium whitespace-pre-wrap">
         {currentQuestion?.question || "No question available"}
-      </p>
+      </Latex>
 
       {currentQuestion?.options && currentQuestion.options.length > 0 && (
         <div className="mt-3 ml-3">
@@ -75,7 +83,10 @@ const Questions: React.FC = () => {
             <div key={index} className="flex items-center p-1">
               <input
                 type="radio"
-                name={`q${currentQuestion.id}`}
+                name={`q${currentQuestion.id}`} // Unique name per question
+                value={option}
+                checked={selectedAnswers[currentQuestion.id] === option} // Check if selected
+                onChange={() => handleOptionSelect(currentQuestion.id, option)}
                 className="mr-2 w-4 h-4 text-blue-500 focus:ring-blue-400"
               />
               <span className="text-gray-800 font-medium">{option}</span>
