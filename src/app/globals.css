@@ -4,9 +4,9 @@
 
 /* Custom Styles */
 body {
-  @apply bg-gray-100 text-gray-900;
+    @apply bg-gray-100 text-gray-900;
 }
 
 button {
-  @apply transition duration-200 ease-in-out;
+    @apply transition duration-200 ease-in-out;
 }
