@@ -10,3 +10,11 @@ body {
 button {
     @apply transition duration-200 ease-in-out;
 }
+
+.clip-path-trapezoid {
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+}
+
+.clip-path-trapezium {
+    clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+}
