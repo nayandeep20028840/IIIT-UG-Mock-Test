@@ -1,3 +1,5 @@
+// src/store/questionStore.tsx
+
 import { create } from "zustand";
 
 interface QuestionStatus {
@@ -24,7 +26,10 @@ export const useQuestionStore = create<QuestionStore>((set) => ({
             selectedAnswers: { ...state.selectedAnswers, [questionId]: answer },
             questionStatus: {
                 ...state.questionStatus,
-                [questionId]: { ...state.questionStatus[questionId], answered: true },
+                [questionId]: {
+                    answered: true,
+                    markedForReview: state.questionStatus[questionId]?.markedForReview || false,
+                },
             },
         })),
     markForReview: (questionId) =>
@@ -32,8 +37,8 @@ export const useQuestionStore = create<QuestionStore>((set) => ({
             questionStatus: {
                 ...state.questionStatus,
                 [questionId]: {
-                    answered: !!state.selectedAnswers[questionId], // Check if answered
-                    markedForReview: true,
+                    answered: !!state.selectedAnswers[questionId],
+                    markedForReview: true, // Set the question as marked for review
                 },
             },
         })),

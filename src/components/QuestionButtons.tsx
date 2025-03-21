@@ -1,30 +1,32 @@
-// components/QuestionButtons.tsx
-
-'use client'
+// src/components/QuestionButtons.tsx
 
 import { useQuestionStore } from "@/store/questionStore";
 
 const QuestionButtons: React.FC = () => {
-    const { selected, setSelected } = useQuestionStore();
+    const { selected, setSelected, questionStatus } = useQuestionStore();
 
     return (
         <div>
             <div className="flex flex-wrap gap-4 mb-4">
-                {Array.from({ length: 129 }, (_, i) => i + 1).map((num) => (
-                    <button
-                        key={num}
-                        onClick={() => setSelected(num)}
-                        className={`w-8 h-8 text-white text-sm font-bold border flex flex-col items-center justify-center ${selected === num
-                                ? "bg-blue-600 border-black"
-                                : "bg-green-300 border-green-400 hover:bg-green-700"
+                {Array.from({ length: 129 }, (_, i) => i + 1).map((num) => {
+                    const isMarkedForReview = questionStatus[num]?.markedForReview;
+                    return (
+                        <button
+                            key={num}
+                            onClick={() => setSelected(num)}
+                            className={`w-8 h-8 text-sm font-bold border flex items-center justify-center transition-all ${
+                                isMarkedForReview
+                                    ? "bg-purple-500 text-white rounded-full" // Purple and circular when marked for review
+                                    : selected === num
+                                    ? "bg-gray-600 border-black text-white rounded"
+                                    : "bg-gray-200 border-gray-400 hover:bg-gray-400 rounded"
                             }`}
-                    >
-                        {selected === num && <span className="text-white -mt-3 text-base leading-none">-</span>}
-                        {num}
-                    </button>
-                ))}
+                        >
+                            {num}
+                        </button>
+                    );
+                })}
             </div>
-
         </div>
     );
 };

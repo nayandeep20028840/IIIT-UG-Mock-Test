@@ -1,10 +1,10 @@
-
-// components/BottomNavigation.tsx
+// src/components/BottomNavigation.tsx
 
 import React from "react";
 import { FaEye } from "react-icons/fa";
 import { MdOutlineArrowForwardIos } from "react-icons/md";
 import { TiTick } from "react-icons/ti";
+import { useQuestionStore } from "@/store/questionStore";
 
 interface BottomNavigationProps {
     onNext: () => void;
@@ -19,11 +19,16 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
     onSubmitNext,
     onSubmitMark,
 }) => {
+    const { selected, markForReview } = useQuestionStore();
+
     return (
         <div className="fixed bottom-0 left-0 w-auto bg-white shadow-md p-3 flex justify-start space-x-2">
             <button
-                onClick={onReviewNext}
-                className="px-4 py-2 w-48 h-8 text-xs flex items-center gap-2 bg-black text-white border border-gray-300 rounded-none hover:bg-black-600"
+                onClick={() => {
+                    markForReview(selected); // Mark current question for review
+                    onReviewNext();
+                }}
+                className="px-4 py-2 w-48 h-8 text-xs flex items-center gap-2 text-white bg-black border border-gray-300 rounded-none hover:bg-gray-800"
             >
                 <FaEye className="text-sm" /> Mark for Review & Next
             </button>
